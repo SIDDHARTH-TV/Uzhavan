@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #333;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .product-image {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        p {
+            font-size: 1.2rem;
+            color: #555;
+            margin: 10px 0;
+        }
+        .price {
+            font-size: 1.5rem;
+            color: #2ecc71;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .quantity {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+        form {
+            margin-top: 30px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+        .alert {
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .alert-error {
+            background-color: #e74c3c;
+            color: white;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            color: #3498db;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Payment for {{ product.name }}</h2>
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+        <p class="price">Price: ${{ product.price }} per kg</p>
+        <p class="quantity">Available Quantity: {{ product.kilo }} kg</p>
+
+        <!-- Display Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div>
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('pay_success') }}" method="POST">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <button type="submit">Proceed with Payment</button>
+        </form>
+
+        <a href="{{ url_for('customer_dashboard') }}">Back to Dashboard</a>
+    </div>
+
+</body>
+</html>

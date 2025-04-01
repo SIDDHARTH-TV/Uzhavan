@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Full screen background with a single image */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('/static/uploads/mainbg.jpg'); /* Path to your background image */
+            background-size: cover; /* Ensure the image covers the entire screen */
+            background-position: center; /* Center the image */
+            background-repeat: no-repeat; /* Prevent image repetition */
+            height: 100vh; /* Make sure the background covers the full viewport */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Container for the login form */
+        .login-container {
+            background: rgba(255, 255, 255, 0.8); /* Semi-transparent background to make text readable */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 410px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 15px;
+            display: block;
+            text-align: left;
+            margin-left: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            background-color: #f4f4f4;
+            color: #555;
+        }
+
+        button {
+            width: 47%;
+            padding: 14px;
+            background-color: #4f773d;
+            color: white;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #65974f;
+        }
+
+        select {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .login-container {
+                padding: 20px;
+                width: 90%;
+            }
+
+            input, select, button {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form action="/login" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" required>
+            
+            <label for="role">Role:</label>
+            <select name="role" id="role" required>
+                <option value="farmer">Farmer</option>
+                <option value="customer">Customer</option>
+            </select><br><br>
+
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+</body>
+</html>

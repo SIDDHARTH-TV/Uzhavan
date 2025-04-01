@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f1f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        p {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #777;
+            margin-bottom: 40px;
+        }
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .product {
+            background-color: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+        .product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .product img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .product-content {
+            padding: 20px;
+            text-align: center;
+        }
+        .product h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .price {
+            font-size: 1.2rem;
+            color: #2ecc71;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .quantity {
+            font-size: 1rem;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        .product button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .product button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+        .logout-btn {
+            display: block;
+            width: 220px;
+            margin: 40px auto;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(to right, #feb47b, #ff7e5f);
+            transform: scale(1.05);
+        }
+        .flash-message {
+            background-color: #ff9f43;
+            color: white;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .flash-message.success {
+            background-color: #2ecc71;
+        }
+        .flash-message.error {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Welcome, {{ user }} (Customer)</h2>
+        <p>Browse and purchase fresh vegetables & fruits.</p>
+
+        <!-- Display Flash Messages as Alerts using JavaScript -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Display all products in card format -->
+        <div class="product-list">
+            {% for product in products %}
+            <div class="product">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                <div class="product-content">
+                    <h3>{{ product.name }}</h3>
+                    <p class="price">Price: ${{ product.price }} per kg</p>
+                    <p class="quantity">Available Quantity: {{ product.kilo }} kg</p>
+                    <form action="{{ url_for('payment') }}" method="POST">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <button type="submit">Buy Now</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <p>No products available at the moment.</p>
+            {% endfor %}
+        </div>
+
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+
+</body>
+</html>

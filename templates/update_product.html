@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Background Image */
+        body {
+            background: url("{{ url_for('static', filename='my_pic.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Form Styling */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #f8f8f8;
+        }
+
+        label {
+            display: block;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            color: #ddd;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: none;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        a {
+            display: block;
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #f8f8f8;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Update Product</h2>
+        <form action="{{ url_for('update_product', product_id=product.id) }}" method="POST" enctype="multipart/form-data">
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" value="{{ product.name }}" required>
+
+            <label for="price">Price (per kg):</label>
+            <input type="number" id="price" name="price" value="{{ product.price }}" step="0.01" required>
+
+            <label for="kilo">Quantity (kg):</label>
+            <input type="number" id="kilo" name="kilo" value="{{ product.kilo }}" step="0.1" required>
+
+            <label for="image">Product Image:</label>
+            <input type="file" id="image" name="image" accept="image/*">
+
+            <button type="submit">Update Product</button>
+        </form>
+        <a href="{{ url_for('farmer_dashboard') }}">Back to Dashboard</a>
+    </div>
+</body>
+</html>
