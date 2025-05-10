@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Farmer Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h2>Farmer Dashboard</h2>
+    <form method="POST">
+        <input type="text" name="name" placeholder="Product Name" required>
+        <input type="number" name="price" placeholder="Price" required>
+        <input type="text" name="image_url" placeholder="Image URL" required>
+        <button type="submit">Add Product</button>
+    </form>
+
+    <h3>Added Products</h3>
+    <div class="product-list">
+        {% for product in products %}
+            <div class="product">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                <p>{{ product.name }} - ${{ product.price }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

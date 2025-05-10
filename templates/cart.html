@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('/static/uploads/yourcart.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            margin: 20px auto;
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: #fff;
+        }
+        .btn-primary {
+            background-color: #28a745;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-checkout {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 20px;
+            z-index: 10;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-checkout:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        table {
+            background: white;
+            border-radius: 10px;
+        }
+        th {
+            background-color: #28a745;
+            color: white;
+        }
+        td img {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+        }
+        .alert {
+            border-radius: 8px;
+        }
+        /* Added styles for centering the button in a box */
+        .checkout-box {
+            background-color: #ffffff; /* White background for the box */
+            width: 100%; /* Full width */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            min-height: 100px; /* Ensure the box has some height */
+            margin-top: 20px; /* Add spacing above the box */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">Your Cart</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% if product %}
+        <div class="card p-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price (per kg)</th>
+                        <th>Quantity (kg)</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in product %}
+                    <tr>
+                        <td>
+                            <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                            {{ p.name }}
+                        </td>
+                        <td>₹{{ p.price }}</td>
+                        <td>{{ p.quantity }}</td>
+                        <td>₹{{ p.subtotal }}</td>
+                        <td>
+                            <a href="{{ url_for('remove_from_cart', product_id=p.id) }}" class="btn btn-danger btn-sm">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h4 class="text-end">Total: ₹{{ total }}</h4>
+            <div class="checkout-box">
+                <a href="/address_confirmation" class="btn-checkout">Proceed to Checkout</a>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-center">Your cart is empty.</p>
+        {% endif %}
+        <a href="{{ url_for('customer_dashboard') }}" class="btn btn-primary d-block mx-auto mt-4" style="width: 200px;">Continue Shopping</a>
+    </div>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93bd42fdda5d12ef',t:'MTc0NjU4NDY3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
+</html>

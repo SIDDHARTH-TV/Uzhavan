@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url('{{ url_for('static', filename='Uploads/h.jpg') }}');
+            background-size: cover;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .success-box {
+            background-color: black;
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .delivery-box {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        /* Styles for the table to match cart.html */
+        table {
+            background: white;
+            border-radius: 10px;
+        }
+        th {
+            background-color: #28a745;
+            color: white;
+        }
+        /* Style for product image to match cart.html */
+        td img {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Order Confirmation</h1>
+
+        <!-- Success Message -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="success-box">
+            <!-- Display only the last message (Payment successful via PhonePe!...) -->
+            {% set last_message = messages[-1] %}
+            <p>{{ last_message[1] }} Your products will be delivered on {{ estimated_delivery }}.</p>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Delivery Address and Estimated Delivery -->
+        <div class="delivery-box">
+            <h4>Product will be delivered to this address:</h4>
+            <p>
+                {{ delivery_address.house_number }}, {{ delivery_address.area }}, {{ delivery_address.landmark }}<br>
+                {{ delivery_address.district }}, {{ delivery_address.state }} - {{ delivery_address.pincode }}
+            </p>
+            <p><strong>Estimated Delivery:</strong> {{ estimated_delivery }}</p>
+        </div>
+
+        <!-- Order Summary -->
+        <h4>Order Summary</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        <!-- Match the exact structure and styling from cart.html -->
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                        {{ product.name }}
+                    </td>
+                    <td>₹{{ product.price }}</td>
+                    <td>{{ product.quantity }} kg</td>
+                    <td>₹{{ product.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3"><strong>Total</strong></td>
+                    <td><strong>₹{{ total }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <a href="{{ url_for('customer_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93c556bf6ab753fa',t:'MTc0NjY2OTM2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

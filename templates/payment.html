@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Payment Method</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('{{ url_for('static', filename='Uploads/pay.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            margin: 0;
+            color: #000000;
+            text-align: center;
+            padding: 50px;
+        }
+        .select-payment {
+            background-color: white;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            display: inline-block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: black;
+            text-transform: uppercase;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .payment-options {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 50px;
+            position: relative;
+        }
+        .payment-method {
+            width: 120px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            color: white;
+        }
+        .payment-method:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+        }
+        .payment-method img {
+            width: 80px;
+            height: 80px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ccc;
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .active-dot {
+            background-color: #28a745;
+        }
+        #payNowButton {
+            display: none;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #payNowButton:hover {
+            background-color: #218838;
+        }
+        #paymentProcessing {
+            display: none;
+            font-size: 18px;
+            color: #2ecc71;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2ecc71;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="select-payment">Select Your Payment Method</div>
+
+    <!-- Payment Options -->
+    <div class="payment-options">
+        <div class="payment-method" onclick="selectPaymentMethod('GPay', this)">
+            <img src="{{ url_for('static', filename='Uploads/gpay.png') }}" alt="GPay">
+            <p>GPay</p>
+            <div class="dot" id="dotGPay"></div>
+        </div>
+        <div class="payment-method" onclick="selectPaymentMethod('PhonePe', this)">
+            <img src="{{ url_for('static', filename='Uploads/phonepe.png') }}" alt="PhonePe">
+            <p>PhonePe</p>
+            <div class="dot" id="dotPhonePe"></div>
+        </div>
+        <div class="payment-method" onclick="selectPaymentMethod('CashOnDelivery', this)">
+            <img src="{{ url_for('static', filename='Uploads/cod.png') }}" alt="Cash on Delivery">
+            <p>Cash on Delivery</p>
+            <div class="dot" id="dotCashOnDelivery"></div>
+        </div>
+        <div class="payment-method" onclick="selectPaymentMethod('NetBanking', this)">
+            <img src="{{ url_for('static', filename='Uploads/netbank.png') }}" alt="Net Banking">
+            <p>Net Banking</p>
+            <div class="dot" id="dotNetBanking"></div>
+        </div>
+    </div>
+
+    <!-- Hidden form for submission -->
+    <form id="paymentForm" action="{{ url_for('payment_success') }}" method="POST">
+        <input type="hidden" id="paymentMethod" name="payment_method" value="">
+        <button type="submit" id="payNowButton">Pay Now</button>
+    </form>
+
+    <!-- Processing Message -->
+    <div id="paymentProcessing">
+        <div class="loader"></div>
+        <span>Verifying Payment...</span>
+    </div>
+
+    <script>
+        function selectPaymentMethod(paymentMethod, element) {
+            console.log('Selected payment method:', paymentMethod);
+            document.getElementById('paymentMethod').value = paymentMethod;
+            var dots = document.querySelectorAll('.dot');
+            dots.forEach(dot => dot.classList.remove('active-dot'));
+            var dotIdMap = {
+                'GPay': 'dotGPay',
+                'PhonePe': 'dotPhonePe',
+                'CashOnDelivery': 'dotCashOnDelivery',
+                'NetBanking': 'dotNetBanking'
+            };
+            var selectedDotId = dotIdMap[paymentMethod];
+            var selectedDot = document.getElementById(selectedDotId);
+            if (selectedDot) {
+                selectedDot.classList.add('active-dot');
+            } else {
+                console.error('Dot not found for payment method: ' + paymentMethod + ', expected ID: ' + selectedDotId);
+            }
+            document.getElementById('payNowButton').style.display = 'inline-block';
+        }
+
+        // Handle form submission for payment
+        document.getElementById('paymentForm').onsubmit = function (event) {
+            var paymentMethod = document.getElementById('paymentMethod').value;
+            if (paymentMethod) {
+                console.log('Showing payment processing for:', paymentMethod);
+                document.getElementById('payNowButton').style.display = 'none';
+                document.getElementById('paymentProcessing').style.display = 'flex';
+            } else {
+                event.preventDefault();
+                console.warn('No payment method selected');
+                alert('Please select a payment method.');
+            }
+        };
+    </script>
+</body>
+</html>

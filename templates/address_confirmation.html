@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address Confirmation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-image: url('{{ url_for('static', filename='Uploads/maps.jpg') }}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .address-box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .selected-address {
+            border-color: #28a745;
+            background-color: #e6f4ea;
+        }
+        .delivery-time {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .btn {
+            margin: 5px;
+        }
+        .error-message {
+            color: #dc3545;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+            padding: 10px;
+            border: 1px solid #dc3545;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Confirm Delivery Address</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for category, message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Existing Addresses -->
+    <div class="form-group">
+        {% if addresses %}
+        <label><input type="radio" name="address_type_radio" value="existing" checked onclick="toggleAddressForm()" required> Use Existing Address</label>
+        <form id="proceedForm" action="{{ url_for('confirm_delivery') }}" method="POST">
+            <input type="hidden" name="address_type" value="existing">
+            <div id="existingAddresses">
+                {% for address in addresses %}
+                <div class="address-box {% if address.id == new_address_id or (loop.first and not new_address_id) %}selected-address{% endif %}">
+                    <input type="radio" name="address_id" value="{{ address.id }}" {% if address.id == new_address_id or (loop.first and not new_address_id) %}checked{% endif %} onchange="updateDeliveryTime()">
+                    <p>
+                        {{ address.house_number }}, {{ address.area }}, {{ address.landmark }}<br>
+                        {{ address.district }}, {{ address.state }} - {{ address.pincode }}
+                    </p>
+                    <p class="delivery-time" data-state="{{ address.state }}" data-district="{{ address.district }}">
+                        Estimated Delivery: {% if address.id == new_address_id or (loop.first and not new_address_id) %}{{ default_delivery_time }}{% else %}Calculating...{% endif %}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Proceed to Pay</button>
+        </form>
+        {% else %}
+        <p>No existing addresses found. Please add a new address below.</p>
+        {% endif %}
+    </div>
+
+    <!-- Add New Address -->
+    <div class="form-group">
+        <label><input type="radio" name="address_type_radio" value="new" {% if not addresses %}checked{% endif %} onclick="toggleAddressForm()" required> Add New Address</label>
+        <div id="newAddressForm" style="display: {% if new_address_id or not addresses %}block{% else %}none{% endif %};">
+            <form id="addressForm" action="{{ url_for('add_address') }}" method="POST">
+                <div class="form-group">
+                    <label for="house_number">House Number</label>
+                    <input type="text" class="form-control" id="house_number" name="house_number" required>
+                </div>
+                <div class="form-group">
+                    <label for="area">Area</label>
+                    <input type="text" class="form-control" id="area" name="area" required>
+                </div>
+                <div class="form-group">
+                    <label for="landmark">Landmark</label>
+                    <input type="text" class="form-control" id="landmark" name="landmark" required>
+                </div>
+                <div class="form-group">
+                    <label for="pincode">Pincode</label>
+                    <input type="text" class="form-control" id="pincode" name="pincode" pattern="\d{6}" title="Pincode must be a 6-digit number" required>
+                </div>
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <select class="form-control" id="state" name="state" onchange="updateDistricts()" required>
+                        <option value="">Select State</option>
+                        {% for state in states %}
+                        <option value="{{ state }}">{{ state }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="district">District</label>
+                    <select class="form-control" id="district" name="district" required>
+                        <option value="">Select District</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Save Address</button>
+            </form>
+        </div>
+    </div>
+
+    <a href="{{ url_for('view_cart') }}" class="btn btn-secondary">Back to Cart</a>
+    <div id="errorMessage" class="error-message"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const stateDistrictMap = {{ state_district_map | safe }};
+    const cartProducts = {{ cart_products | tojson | safe }};
+
+    function toggleAddressForm() {
+        const addressType = document.querySelector('input[name="address_type_radio"]:checked').value;
+        document.getElementById('newAddressForm').style.display = addressType === 'new' ? 'block' : 'none';
+        document.getElementById('existingAddresses').style.display = addressType === 'existing' ? 'block' : 'none';
+    }
+
+    function updateDistricts() {
+        const state = document.getElementById('state').value;
+        const districtSelect = document.getElementById('district');
+        districtSelect.innerHTML = '<option value="">Select District</option>';
+        if (state && stateDistrictMap[state]) {
+            stateDistrictMap[state].forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+        }
+    }
+
+    function updateDeliveryTime() {
+        const selectedAddress = document.querySelector('input[name="address_id"]:checked');
+        if (!selectedAddress) return;
+
+        const addressBox = selectedAddress.closest('.address-box');
+        const state = addressBox.querySelector('.delivery-time').dataset.state;
+        const district = addressBox.querySelector('.delivery-time').dataset.district;
+        const deliveryTimeElement = addressBox.querySelector('.delivery-time');
+
+        document.querySelectorAll('.address-box').forEach(box => box.classList.remove('selected-address'));
+        addressBox.classList.add('selected-address');
+
+        let maxDays = 7;
+        try {
+            cartProducts.forEach(product => {
+                if (state === product.farmer_state && district === product.farmer_district) {
+                    maxDays = Math.min(maxDays, 1);
+                } else if (state === product.farmer_state) {
+                    maxDays = Math.min(maxDays, 2);
+                }
+            });
+        } catch (e) {
+            console.error('Error calculating delivery time:', e);
+        }
+
+        const orderDate = new Date();
+        orderDate.setDate(orderDate.getDate() + maxDays);
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const deliveryDate = orderDate.toLocaleDateString('en-US', options);
+        deliveryTimeElement.textContent = `Estimated Delivery: Delivery by ${deliveryDate}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const existingAddresses = document.getElementById('existingAddresses');
+        if (existingAddresses && existingAddresses.style.display !== 'none') {
+            updateDeliveryTime();
+        }
+        toggleAddressForm();
+    });
+
+    document.getElementById('addressForm').addEventListener('submit', (e) => {
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.style.display = 'none';
+        errorMessage.textContent = '';
+
+        const pincode = document.getElementById('pincode').value;
+        if (!/^\d{6}$/.test(pincode)) {
+            e.preventDefault();
+            errorMessage.textContent = 'Pincode must be a 6-digit number.';
+            errorMessage.style.display = 'block';
+        }
+    });
+
+    document.getElementById('proceedForm').addEventListener('submit', (e) => {
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.style.display = 'none';
+        errorMessage.textContent = '';
+
+        const selectedAddress = document.querySelector('input[name="address_id"]:checked');
+        if (!selectedAddress) {
+            e.preventDefault();
+            errorMessage.textContent = 'Please select an existing address.';
+            errorMessage.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>
